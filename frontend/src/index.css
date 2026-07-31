@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-base text-ink font-body antialiased;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(124,108,240,0.10), transparent 40%),
+      radial-gradient(circle at 90% 10%, rgba(245,166,35,0.08), transparent 35%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+  ::selection {
+    background: rgba(245,166,35,0.35);
+  }
+  *:focus-visible {
+    outline: 2px solid #F5A623;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-xl2 shadow-card;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-amber text-base font-display font-semibold px-4 py-2.5 transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-surfaceAlt border border-border text-ink font-medium px-4 py-2.5 transition-colors hover:border-amber/50 disabled:opacity-50;
+  }
+  .input-field {
+    @apply w-full bg-surfaceAlt border border-border rounded-lg px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-amber/60 transition-colors;
+  }
+  .label-eyebrow {
+    @apply text-[11px] tracking-[0.18em] uppercase text-ink-faint font-medium;
+  }
+  .pill {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+}
+
+/* Roll-number style ticker font for scores */
+.tabular-score {
+  font-family: "JetBrains Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
