@@ -81,16 +81,16 @@ npm run dev                 # starts on http://localhost:5173
 Open `http://localhost:5173`, register an account, and start logging practice sessions.
 Register a couple of test accounts to see the leaderboard populate.
 
-## Hosting (Vercel + Render + MongoDB Atlas)
+## Hosting (Vercel + MongoDB Atlas)
 
-The frontend and API are deployed separately. Push this project to GitHub first, then:
+The frontend and Express API deploy together as one Vercel project. The root `server.js` exports the API app, while the Vite build places the frontend in Vercel's `public` directory.
 
-1. In Render, create a Blueprint from the repository and select `render.yaml`. Enter your Atlas connection string for `MONGO_URI`. For the initial `CLIENT_URL`, use `http://localhost:5173`; Render will generate `JWT_SECRET` for you.
-2. In Vercel, import the same repository and set the project root directory to `frontend`. Add the environment variable `VITE_API_URL` with the Render service URL followed by `/api`, for example `https://campus-placement-tracker-api.onrender.com/api`. Deploy the frontend and copy its production URL.
-3. In Render, change `CLIENT_URL` to the Vercel production URL and redeploy the API.
-4. In MongoDB Atlas, allow connections from the API host. Prefer restricting access to the host's static outbound IPs when available. If the host uses dynamic outbound IPs, Atlas may require `0.0.0.0/0`; use a strong database password and a database user with only the permissions the app needs.
+1. Import the repository in Vercel and keep the project root directory set to the repository root, not `frontend` or `backend`.
+2. Add `MONGO_URI` and `JWT_SECRET` in Vercel's Project Settings under Environment Variables. You can also set `JWT_EXPIRES_IN` (for example, `7d`) and `CLIENT_URL` if needed. Keep secrets out of GitHub.
+3. Deploy. The frontend uses same-origin `/api` requests, so `VITE_API_URL` does not need to be configured.
+4. In MongoDB Atlas, allow connections from the deployment environment. Prefer limiting access to known outbound IPs when available; for a student demo, a strong database password and a database user with restricted permissions are especially important if broad access is required.
 
-Render reads `MONGO_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `CLIENT_URL` from its environment settings. `JWT_SECRET` must remain on the backend and must not be added to Vercel. The API starts listening only after its MongoDB connection succeeds, and Render checks `/api/health` for readiness.
+Vercel runs Express as a Function, so the API connects to MongoDB on demand and reuses the connection while the Function instance stays warm. Static frontend files are served from Vercel's CDN, and non-API routes fall back to the React app.
 
 The sample `npm run seed` command clears and recreates the aptitude-question and coding-problem collections. Do not run it against a database containing data you want to keep. To add only missing aptitude questions, run `npm run seed:aptitude` from `backend`.
 
