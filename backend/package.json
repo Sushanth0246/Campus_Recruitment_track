@@ -5,8 +5,8 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node local.js",
+    "dev": "nodemon local.js",
     "seed": "node seed/seed.js",
     "seed:aptitude": "node seed/seed.js --aptitude-only"
   },

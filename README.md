@@ -81,16 +81,16 @@ npm run dev                 # starts on http://localhost:5173
 Open `http://localhost:5173`, register an account, and start logging practice sessions.
 Register a couple of test accounts to see the leaderboard populate.
 
-## Hosting (Vercel + MongoDB Atlas)
+## Hosting (separate Vercel projects + MongoDB Atlas)
 
-The frontend and Express API deploy together as one Vercel project. The root `server.js` exports the API app, while the Vite build places the frontend in Vercel's `public` directory.
+Create two Vercel projects from the same GitHub repository:
 
-1. Import the repository in Vercel and keep the project root directory set to the repository root, not `frontend` or `backend`.
-2. Add `MONGO_URI` and `JWT_SECRET` in Vercel's Project Settings under Environment Variables. You can also set `JWT_EXPIRES_IN` (for example, `7d`) and `CLIENT_URL` if needed. Keep secrets out of GitHub.
-3. Deploy. The frontend uses same-origin `/api` requests, so `VITE_API_URL` does not need to be configured.
-4. In MongoDB Atlas, allow connections from the deployment environment. Prefer limiting access to known outbound IPs when available; for a student demo, a strong database password and a database user with restricted permissions are especially important if broad access is required.
+1. Create the API project first and set its Root Directory to `backend`. Let Vercel detect the Express app; leave the Build and Output Directory overrides empty. Add `MONGO_URI`, `JWT_SECRET`, and `JWT_EXPIRES_IN` (`7d`) as backend environment variables. Set `CLIENT_URL` to the frontend's eventual Vercel URL after deploying the frontend.
+2. Create a second Vercel project from the same repository and set its Root Directory to `frontend`. Use the Vite framework preset and set `VITE_API_URL` to the API project's URL followed by `/api`, for example `https://campus-placement-tracker-api.vercel.app/api`.
+3. Deploy both projects, then set the backend project's `CLIENT_URL` to the exact frontend production origin (no trailing slash) and redeploy the API.
+4. In MongoDB Atlas, allow connections from Vercel and use a strong database password with a database user limited to the app database.
 
-Vercel runs Express as a Function, so the API connects to MongoDB on demand and reuses the connection while the Function instance stays warm. Static frontend files are served from Vercel's CDN, and non-API routes fall back to the React app.
+Keep `MONGO_URI` and `JWT_SECRET` only in the backend Vercel project's environment settings, never in GitHub or the frontend project. Local frontend development continues to proxy `/api` to `http://localhost:5000`; the local backend uses `backend/local.js` while Vercel imports the Express app from `backend/server.js`.
 
 The sample `npm run seed` command clears and recreates the aptitude-question and coding-problem collections. Do not run it against a database containing data you want to keep. To add only missing aptitude questions, run `npm run seed:aptitude` from `backend`.
 
