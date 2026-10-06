@@ -1,5 +1,6 @@
 const AptitudeQuestion = require("../models/AptitudeQuestion");
 const AptitudeAttempt = require("../models/AptitudeAttempt");
+const rotateQuestionsForDay = require("../utils/dailyQuestionRotation");
 
 // @route GET /api/aptitude/questions?category=Quantitative&limit=10
 const getQuestions = async (req, res) => {
@@ -8,10 +9,10 @@ const getQuestions = async (req, res) => {
   if (category) filter.category = category;
   if (difficulty) filter.difficulty = difficulty;
 
-  const questions = await AptitudeQuestion.aggregate([
-    { $match: filter },
-    { $sample: { size: Number(limit) } },
-  ]);
+  const requestedLimit = Number.parseInt(limit, 10);
+  const questionLimit = Number.isInteger(requestedLimit) && requestedLimit > 0 ? requestedLimit : 10;
+  const questionBank = await AptitudeQuestion.find(filter).sort({ _id: 1 }).lean();
+  const questions = rotateQuestionsForDay(questionBank, questionLimit);
 
   res.json({ questions });
 };

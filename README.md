@@ -81,6 +81,19 @@ npm run dev                 # starts on http://localhost:5173
 Open `http://localhost:5173`, register an account, and start logging practice sessions.
 Register a couple of test accounts to see the leaderboard populate.
 
+## Hosting (Vercel + Render + MongoDB Atlas)
+
+The frontend and API are deployed separately. Push this project to GitHub first, then:
+
+1. In Render, create a Blueprint from the repository and select `render.yaml`. Enter your Atlas connection string for `MONGO_URI`. For the initial `CLIENT_URL`, use `http://localhost:5173`; Render will generate `JWT_SECRET` for you.
+2. In Vercel, import the same repository and set the project root directory to `frontend`. Add the environment variable `VITE_API_URL` with the Render service URL followed by `/api`, for example `https://campus-placement-tracker-api.onrender.com/api`. Deploy the frontend and copy its production URL.
+3. In Render, change `CLIENT_URL` to the Vercel production URL and redeploy the API.
+4. In MongoDB Atlas, allow connections from the API host. Prefer restricting access to the host's static outbound IPs when available. If the host uses dynamic outbound IPs, Atlas may require `0.0.0.0/0`; use a strong database password and a database user with only the permissions the app needs.
+
+Render reads `MONGO_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `CLIENT_URL` from its environment settings. `JWT_SECRET` must remain on the backend and must not be added to Vercel. The API starts listening only after its MongoDB connection succeeds, and Render checks `/api/health` for readiness.
+
+The sample `npm run seed` command clears and recreates the aptitude-question and coding-problem collections. Do not run it against a database containing data you want to keep. To add only missing aptitude questions, run `npm run seed:aptitude` from `backend`.
+
 ## Environment variables (`backend/.env`)
 
 | Variable         | Description                                  |
